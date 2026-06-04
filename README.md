@@ -183,22 +183,3 @@ Data remains on the device unless:
 * A backup file is imported over the existing collection
 
 ---
-
-## Future Improvements
-
-Potential enhancements:
-
-* Country flags
-* Sticker images
-* Collection milestones
-* Recent activity tracking
-* Cloud synchronization
-* Multiple album support
-* Advanced statistics
-* QR code sharing
-
----
-
-## Author
-
-Created as a personal FIFA World Cup 2026 sticker collection tracker.
