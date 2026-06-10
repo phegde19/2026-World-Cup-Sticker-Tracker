@@ -5,21 +5,33 @@ import stickers from "../data/stickers.json";
 import { db } from "../db/db";
 
 export default function Countries() {
-  const [progress, setProgress] = useState({});
+
+  const [progress,
+    setProgress] =
+    useState({});
 
   useEffect(() => {
     loadProgress();
   }, []);
 
   async function loadProgress() {
+
     const collection =
       await db.collection.toArray();
 
-    const quantityMap = {};
+    const collectionMap = {};
 
     collection.forEach((item) => {
-      quantityMap[item.code] =
-        item.quantity;
+
+      collectionMap[item.code] = {
+        quantity:
+          item.quantity || 0,
+
+        parallelOnly:
+          item.parallelOnly ||
+          false
+      };
+
     });
 
     const countries =
@@ -36,15 +48,26 @@ export default function Countries() {
       const countryStickers =
         stickers.filter(
           (s) =>
-            s.Country === country
+            s.Country ===
+            country
         );
 
       const owned =
         countryStickers.filter(
-          (sticker) =>
-            (quantityMap[
-              sticker.Code
-            ] || 0) > 0
+          (sticker) => {
+
+            const record =
+              collectionMap[
+                sticker.Code
+              ];
+
+            return (
+              record &&
+              record.quantity > 0 &&
+              !record.parallelOnly
+            );
+
+          }
         ).length;
 
       progressMap[country] = {
@@ -52,14 +75,17 @@ export default function Countries() {
         total:
           countryStickers.length
       };
+
     });
 
-    setProgress(progressMap);
+    setProgress(
+      progressMap
+    );
   }
 
   const countries =
-    Object.keys(progress).sort(
-      (a, b) => {
+    Object.keys(progress)
+      .sort((a, b) => {
 
         const aPct =
           progress[a].owned /
@@ -70,86 +96,105 @@ export default function Countries() {
           progress[b].total;
 
         return bPct - aPct;
-      }
-    );
+
+      });
 
   return (
     <div className="page">
 
-      <h1>🌎 Countries</h1>
+      <h1>
+        🌎 Countries
+      </h1>
 
-      {countries.map((country) => {
+      {countries.map(
+        (country) => {
 
-        const percentage =
-          (
-            (progress[country].owned /
-              progress[country].total) *
-            100
-          ).toFixed(0);
+          const percentage =
+            (
+              (
+                progress[country]
+                  .owned /
+                progress[country]
+                  .total
+              ) * 100
+            ).toFixed(0);
 
-        return (
-          <Link
-            key={country}
-            to={`/country/${encodeURIComponent(country)}`}
-            style={{
-              textDecoration:
-                "none",
-              color: "inherit"
-            }}
-          >
-            <div className="card">
+          return (
+            <Link
+              key={country}
+              to={`/country/${encodeURIComponent(
+                country
+              )}`}
+              style={{
+                textDecoration:
+                  "none",
+                color:
+                  "inherit"
+              }}
+            >
+              <div className="card">
 
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent:
-                    "space-between"
-                }}
-              >
-                <strong>
-                  {country}
-                </strong>
+                <div
+                  style={{
+                    display:
+                      "flex",
+                    justifyContent:
+                      "space-between"
+                  }}
+                >
+                  <strong>
+                    {country}
+                  </strong>
 
-                <strong>
-                  {percentage}%
-                </strong>
+                  <strong>
+                    {percentage}%
+                  </strong>
+                </div>
+
+                <div
+                  style={{
+                    marginTop:
+                      "8px"
+                  }}
+                >
+                  {
+                    progress[
+                      country
+                    ].owned
+                  }
+                  {" / "}
+                  {
+                    progress[
+                      country
+                    ].total
+                  }
+                </div>
+
+                <progress
+                  value={
+                    progress[
+                      country
+                    ].owned
+                  }
+                  max={
+                    progress[
+                      country
+                    ].total
+                  }
+                  style={{
+                    width:
+                      "100%",
+                    marginTop:
+                      "8px"
+                  }}
+                />
+
               </div>
+            </Link>
+          );
+        }
+      )}
 
-              <div
-                style={{
-                  marginTop: "8px"
-                }}
-              >
-                {
-                  progress[country]
-                    .owned
-                }
-                {" / "}
-                {
-                  progress[country]
-                    .total
-                }
-              </div>
-
-              <progress
-                value={
-                  progress[country]
-                    .owned
-                }
-                max={
-                  progress[country]
-                    .total
-                }
-                style={{
-                  width: "100%",
-                  marginTop: "8px"
-                }}
-              />
-
-            </div>
-          </Link>
-        );
-      })}
     </div>
   );
 }

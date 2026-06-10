@@ -26,22 +26,49 @@ export default function Trade() {
     const collection =
       await db.collection.toArray();
 
-    const quantityMap = {};
+    const collectionMap = {};
 
     collection.forEach((item) => {
-      quantityMap[item.code] =
-        item.quantity;
+
+      collectionMap[item.code] = {
+        quantity:
+          item.quantity || 0,
+
+        parallelOnly:
+          item.parallelOnly ||
+          false
+      };
+
     });
 
     const missing =
       stickers.filter(
-        (sticker) =>
-          !quantityMap[
-            sticker.Code
-          ] ||
-          quantityMap[
-            sticker.Code
-          ] === 0
+        (sticker) => {
+
+          const record =
+            collectionMap[
+              sticker.Code
+            ];
+
+          if (!record) {
+            return true;
+          }
+
+          if (
+            record.quantity === 0
+          ) {
+            return true;
+          }
+
+          if (
+            record.parallelOnly
+          ) {
+            return true;
+          }
+
+          return false;
+
+        }
       );
 
     const dupes =
@@ -62,8 +89,12 @@ export default function Trade() {
           return {
             ...sticker,
             quantity:
-              item.quantity
+              item.quantity,
+            parallelOnly:
+              item.parallelOnly ||
+              false
           };
+
         });
 
     setNeeds(missing);
@@ -147,6 +178,7 @@ export default function Trade() {
           }}
         >
           <h3>Extras</h3>
+
           <h1>
             {
               duplicates.reduce(
@@ -163,6 +195,7 @@ export default function Trade() {
               )
             }
           </h1>
+
         </div>
       </div>
 
@@ -231,6 +264,7 @@ export default function Trade() {
                   sticker.Country
                 }
               </div>
+
             </div>
 
           )
@@ -280,6 +314,22 @@ export default function Trade() {
                   sticker.quantity
                 }
               </div>
+
+              {sticker.parallelOnly && (
+                <div
+                  style={{
+                    marginTop:
+                      "8px",
+                    color:
+                      "#f59e0b",
+                    fontWeight:
+                      "bold"
+                  }}
+                >
+                  🟠 Parallel Only
+                </div>
+              )}
+
             </div>
 
           )

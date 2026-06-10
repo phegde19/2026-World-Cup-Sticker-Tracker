@@ -1,7 +1,11 @@
 import Dexie from "dexie";
 
-export const db = new Dexie("WorldCupTracker");
+export const db =
+  new Dexie(
+    "WorldCupTracker"
+  );
 
-db.version(1).stores({
-  collection: "code, quantity"
+db.version(2).stores({
+  collection:
+    "code, quantity, parallelOnly"
 });

@@ -11,8 +11,8 @@ export default function Search() {
   const [search, setSearch] =
     useState("");
 
-  const [quantities,
-    setQuantities] =
+  const [collection,
+    setCollection] =
     useState({});
 
   useEffect(() => {
@@ -27,11 +27,19 @@ export default function Search() {
     const map = {};
 
     data.forEach((item) => {
-      map[item.code] =
-        item.quantity;
+
+      map[item.code] = {
+        quantity:
+          item.quantity || 0,
+
+        parallelOnly:
+          item.parallelOnly ||
+          false
+      };
+
     });
 
-    setQuantities(map);
+    setCollection(map);
   }
 
   async function updateQuantity(
@@ -43,9 +51,37 @@ export default function Search() {
       qty = 0;
     }
 
+    const existing =
+      await db.collection.get(
+        code
+      );
+
     await db.collection.put({
       code,
-      quantity: qty
+      quantity: qty,
+      parallelOnly:
+        existing?.parallelOnly ||
+        false
+    });
+
+    loadCollection();
+  }
+
+  async function toggleParallel(
+    code
+  ) {
+
+    const existing =
+      await db.collection.get(
+        code
+      );
+
+    await db.collection.put({
+      code,
+      quantity:
+        existing?.quantity || 0,
+      parallelOnly:
+        !existing?.parallelOnly
     });
 
     loadCollection();
@@ -163,9 +199,17 @@ export default function Search() {
               }
               sticker={sticker}
               quantity={
-                quantities[
+                collection[
                   sticker.Code
-                ] || 0
+                ]?.quantity || 0
+              }
+              parallelOnly={
+                collection[
+                  sticker.Code
+                ]?.parallelOnly || false
+              }
+              toggleParallel={
+                toggleParallel
               }
               updateQuantity={
                 updateQuantity

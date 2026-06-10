@@ -6,6 +6,7 @@ import ThemeToggle from "../Components/ThemeToggle";
 import Stats from "../components/Stats";
 
 export default function Dashboard() {
+
   const [stats, setStats] =
     useState({
       owned: 0,
@@ -19,6 +20,7 @@ export default function Dashboard() {
   }, []);
 
   async function loadStats() {
+
     const collection =
       await db.collection.toArray();
 
@@ -27,7 +29,10 @@ export default function Dashboard() {
 
     collection.forEach((item) => {
 
-      if (item.quantity > 0) {
+      if (
+        item.quantity > 0 &&
+        !item.parallelOnly
+      ) {
         owned++;
       }
 
@@ -54,34 +59,34 @@ export default function Dashboard() {
       100
     ).toFixed(1);
 
-  console.log("stats",stats);
   return (
     <div className="page">
 
-<div
-  style={{
-    display: "flex",
-    justifyContent:
-      "space-between",
-    alignItems: "center"
-  }}
->
-  <h1>📊 Dashboard</h1>
+      <div
+        style={{
+          display: "flex",
+          justifyContent:
+            "space-between",
+          alignItems: "center"
+        }}
+      >
+        <h1>
+          📊 Dashboard
+        </h1>
 
-  <ThemeToggle />
-</div>
+        <ThemeToggle />
+      </div>
 
       <Stats
         total={stats.total}
         owned={stats.owned}
         missing={stats.missing}
-        duplicates={
-          stats.duplicates
-        }
         extraCopies={
           stats.extraCopies
         }
-        completion={completion}
+        completion={
+          completion
+        }
       />
 
     </div>

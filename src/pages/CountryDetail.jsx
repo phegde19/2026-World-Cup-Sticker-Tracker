@@ -11,8 +11,8 @@ export default function CountryDetail() {
   const { country } =
     useParams();
 
-  const [quantities,
-    setQuantities] =
+  const [collection,
+    setCollection] =
     useState({});
 
   useEffect(() => {
@@ -27,11 +27,19 @@ export default function CountryDetail() {
     const map = {};
 
     data.forEach((item) => {
-      map[item.code] =
-        item.quantity;
+
+      map[item.code] = {
+        quantity:
+          item.quantity || 0,
+
+        parallelOnly:
+          item.parallelOnly ||
+          false
+      };
+
     });
 
-    setQuantities(map);
+    setCollection(map);
   }
 
   async function updateQuantity(
@@ -42,9 +50,37 @@ export default function CountryDetail() {
     if (qty < 0)
       qty = 0;
 
+    const existing =
+      await db.collection.get(
+        code
+      );
+
     await db.collection.put({
       code,
-      quantity: qty
+      quantity: qty,
+      parallelOnly:
+        existing?.parallelOnly ||
+        false
+    });
+
+    loadCollection();
+  }
+
+  async function toggleParallel(
+    code
+  ) {
+
+    const existing =
+      await db.collection.get(
+        code
+      );
+
+    await db.collection.put({
+      code,
+      quantity:
+        existing?.quantity || 0,
+      parallelOnly:
+        !existing?.parallelOnly
     });
 
     loadCollection();
@@ -59,10 +95,20 @@ export default function CountryDetail() {
 
   const owned =
     countryStickers.filter(
-      (sticker) =>
-        (quantities[
-          sticker.Code
-        ] || 0) > 0
+      (sticker) => {
+
+        const record =
+          collection[
+            sticker.Code
+          ];
+
+        return (
+          record &&
+          record.quantity > 0 &&
+          !record.parallelOnly
+        );
+
+      }
     ).length;
 
   const percentage =
@@ -105,20 +151,30 @@ export default function CountryDetail() {
 
       {countryStickers.map(
         (sticker) => (
+
           <StickerCard
             key={
               sticker.Code
             }
             sticker={sticker}
             quantity={
-              quantities[
+              collection[
                 sticker.Code
-              ] || 0
+              ]?.quantity || 0
+            }
+            parallelOnly={
+              collection[
+                sticker.Code
+              ]?.parallelOnly || false
+            }
+            toggleParallel={
+              toggleParallel
             }
             updateQuantity={
               updateQuantity
             }
           />
+
         )
       )}
 

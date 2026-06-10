@@ -1,24 +1,45 @@
 export default function StickerCard({
   sticker,
   quantity,
+  parallelOnly,
+  toggleParallel,
   updateQuantity
 }) {
 
   let status = "🔴 Need";
   let background = "#ef4444";
 
-  if (quantity === 1) {
-    status = "🟢 Have";
-    background = "#16a34a";
+  if (
+    quantity > 0 &&
+    !parallelOnly
+  ) {
+    status =
+      quantity > 1
+        ? "🔵 Duplicate"
+        : "🟢 Have";
+
+    background =
+      quantity > 1
+        ? "#2563eb"
+        : "#16a34a";
   }
 
-  if (quantity > 1) {
-    status = "🔵 Duplicate";
-    background = "#2563eb";
+  if (
+    quantity > 0 &&
+    parallelOnly
+  ) {
+    status =
+      "🟠 Parallel Only";
+
+    background =
+      "#f59e0b";
   }
 
   const teamCode =
-    sticker.Code.replace(/[0-9]/g, "");
+    sticker.Code.replace(
+      /[0-9]/g,
+      ""
+    );
 
   return (
     <div className="card">
@@ -111,7 +132,39 @@ export default function StickerCard({
 
       <div
         style={{
+          marginTop: "12px"
+        }}
+      >
+        <label
+          style={{
+            fontWeight: "bold"
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={
+              parallelOnly
+            }
+            onChange={() =>
+              toggleParallel(
+                sticker.Code
+              )
+            }
+          />
+
+          {" "}
+          Parallel Only
+        </label>
+      </div>
+
+      <div
+        style={{
           marginTop: "12px",
+          display: "inline-block",
+          background,
+          color: "white",
+          padding: "6px 12px",
+          borderRadius: "999px",
           fontWeight: "bold"
         }}
       >
