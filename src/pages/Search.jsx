@@ -3,8 +3,8 @@ import { useEffect, useState } from "react";
 import stickers from "../data/stickers.json";
 import { db } from "../db/db";
 
-import SearchBar from "../components/SearchBar";
-import StickerCard from "../components/StickerCard";
+import SearchBar from "../Components/SearchBar";
+import StickerCard from "../Components/StickerCard";
 
 export default function Search() {
 

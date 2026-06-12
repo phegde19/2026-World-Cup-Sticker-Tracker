@@ -3,7 +3,7 @@ import stickers from "../data/stickers.json";
 import { db } from "../db/db";
 import ThemeToggle from "../Components/ThemeToggle";
 
-import Stats from "../components/Stats";
+import Stats from "../Components/Stats";
 
 export default function Dashboard() {
 
