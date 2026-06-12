@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import stickers from "../data/stickers.json";
 import { db } from "../db/db";
 
-import StickerCard from "../components/StickerCard";
+import StickerCard from "../Components/StickerCard";
 
 export default function CountryDetail() {
 
